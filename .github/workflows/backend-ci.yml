@@ -1,0 +1,57 @@
+# Человекочитаемое имя нашего workflow. Оно будет отображаться в GitHub.
+name: Backend CI - Build and Test
+
+# --- Триггеры: Когда запускать этот workflow ---
+on:
+  # Запускать при отправке кода в ветку main
+  push:
+    branches: [ "main" ]
+  # Запускать при создании или обновлении Pull Request, нацеленного на ветку main
+  pull_request:
+    branches: [ "main" ]
+
+# --- Задачи: Что именно нужно делать ---
+jobs:
+  # Мы создаем одну задачу и называем ее 'build-and-test'
+  build-and-test:
+    # Указываем, на какой операционной системе будет работать наш "робот".
+    # 'ubuntu-latest' - это стандартный, быстрый и надежный выбор.
+    runs-on: ubuntu-latest
+
+    # --- Шаги: Последовательность действий в задаче ---
+    steps:
+      # Шаг 1: Клонирование репозитория
+      # Используем готовое действие (action) от GitHub, чтобы скачать наш код
+      # на виртуальную машину.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Шаг 2: Настройка среды Node.js
+      # Используем другое готовое действие для установки нужной нам версии Node.js.
+      # Важно, чтобы она совпадала с версией в Dockerfile для консистентности.
+      - name: Setup Node.js v18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # Шаг 3: Установка зависимостей
+      # Важно: все последующие команды мы выполняем в папке backend/
+      - name: Install dependencies
+        working-directory: ./backend
+        # 'npm ci' - специальная команда для CI. Она быстрее и строже, чем 'npm install',
+        # так как использует package-lock.json для гарантии точной установки.
+        run: npm ci
+
+      # Шаг 4: Проверка качества кода (Линтинг)
+      # Этот шаг будет искать стилистические ошибки и потенциальные проблемы в коде.
+      # Он сработает, когда разработчики добавят скрипт "lint" в package.json.
+      - name: Run linter
+        working-directory: ./backend
+        run: npm run lint --if-present
+
+      # Шаг 5: Запуск тестов
+      # Это главный шаг проверки. Он будет запускать все автоматические тесты.
+      # '--if-present' означает, что шаг не упадет, если скрипта 'test' еще нет.
+      - name: Run tests
+        working-directory: ./backend
+        run: npm run test --if-present
