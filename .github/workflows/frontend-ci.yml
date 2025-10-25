@@ -1,21 +1,38 @@
-name: Frontend CI - DEBUG
+# Имя workflow, которое будет отображаться в GitHub Actions
+name: Frontend CI - Production Ready
 
 on:
   push:
-    branches:
-      - 'feature/frontend-ci-v2' # Ограничиваем запуск только нашей веткой
+    branches-ignore:
+      - 'main'
   pull_request:
     branches:
       - 'main'
 
 jobs:
-  investigate-files:
+  quality-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Debug - List all files recursively
-        # Эта команда - наша "видеокамера".
-        # ls -R покажет нам КАЖДЫЙ файл и КАЖДУЮ папку в проекте.
-        run: ls -R
+      - name: Setup Node.js v18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run Linter (lint)
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Run Tests (test)
+        working-directory: ./frontend
+        run: npm run test
+
+      - name: Build Docker Image (build)
+        # Наша финальная, "золотая" команда, которая точно работает
+        run: docker build --file ./frontend/Dockerfile ./frontend
