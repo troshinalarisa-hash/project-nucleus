@@ -1,4 +1,4 @@
-name: Frontend CI - v2
+name: Frontend CI - Final
 
 on:
   push:
@@ -33,5 +33,5 @@ jobs:
         run: npm run test
 
       - name: Build Docker Image (build)
-        working-directory: ./frontend
-        run: docker build . --file Dockerfile
+        # Золотая Команда: Явно указываем путь и к файлу, и к контексту
+        run: docker build --file ./frontend/Dockerfile ./frontend
