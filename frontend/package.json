@@ -5,6 +5,6 @@
   "scripts": {
     "lint": "echo 'Linter placeholder'",
     "test": "echo 'Tests not implemented yet'",
-    "build": "echo 'Build script placeholder'"
+    "build": "mkdir dist"
   }
 }
