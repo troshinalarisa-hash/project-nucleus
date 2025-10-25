@@ -1,37 +1,21 @@
-name: Frontend CI - Final
+name: Frontend CI - DEBUG
 
 on:
   push:
-    branches-ignore:
-      - 'main'
+    branches:
+      - 'feature/frontend-ci-v2' # Ограничиваем запуск только нашей веткой
   pull_request:
     branches:
       - 'main'
 
 jobs:
-  quality-check:
+  investigate-files:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js v18
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Install dependencies
-        working-directory: ./frontend
-        run: npm ci
-
-      - name: Run Linter (lint)
-        working-directory: ./frontend
-        run: npm run lint
-
-      - name: Run Tests (test)
-        working-directory: ./frontend
-        run: npm run test
-
-      - name: Build Docker Image (build)
-        # Золотая Команда: Явно указываем путь и к файлу, и к контексту
-        run: docker build --file ./frontend/Dockerfile ./frontend
+      - name: Debug - List all files recursively
+        # Эта команда - наша "видеокамера".
+        # ls -R покажет нам КАЖДЫЙ файл и КАЖДУЮ папку в проекте.
+        run: ls -R
